@@ -599,18 +599,28 @@ async def auto_rename_files(client, message):
                     ph_path = None
 
             try:
-                await client.send_document(
-                    chat_id=message.chat.id,
-                    document=path,
-                    thumb=ph_path,
-                    caption=caption,
-                    progress=progress_for_pyrograms,
-                    progress_args=(" 🚀 **Uploading Started....**", upload_msg, time.time())
-                )
+                if media_type == "video":
+                    await client.send_video(
+                        chat_id=message.chat.id,
+                        video=path,
+                        thumb=ph_path,
+                        caption=caption,
+                        progress=progress_for_pyrograms,
+                        progress_args=(" 🚀 **Uploading Started....**", upload_msg, time.time())
+                    )
+                else:
+                    await client.send_document(
+                        chat_id=message.chat.id,
+                        document=path,
+                        thumb=ph_path,
+                        caption=caption,
+                        progress=progress_for_pyrograms,
+                        progress_args=(" 🚀 **Uploading Started....**", upload_msg, time.time())
+                    )
             except FloodWait as e:
                 await asyncio.sleep(e.x)  # Use asyncio.sleep to avoid blocking the event loop
             except Exception as e:
-                print(f"Error while uploading document: {e}")
+                print(f"Error while uploading: {e}")
             finally:
                 # Clean up
                 if os.path.exists(path):
@@ -627,6 +637,8 @@ async def auto_rename_files(client, message):
                         await upload_msg.delete()
                     except Exception as e:
                         print(f"Error while deleting upload_msg: {e}")
+            
+
 
     except Exception as e:
         print(f"Error in auto_rename_files: {e}")
