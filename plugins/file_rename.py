@@ -259,22 +259,19 @@ async def process_file(client, message, media, new_name, media_type, user_id):
     else:
         caption = f"**{new_name}**"
 
-    # Generate thumbnail if none exists
-    if media.thumbs or c_thumb:
-        if c_thumb:
-            ph_path = await client.download_media(c_thumb)
+    # Handle thumbnail
+    if c_thumb:
+        ph_path = await client.download_media(c_thumb)
+        width, height, ph_path = await fix_thumb(ph_path)
+    else:
+        # Generate a screenshot if no thumbnail exists
+        if duration > 0:
+            random_time = random.randint(0, duration - 1)  # Get a random time within the video duration
+            ph_path = f"downloads/thumbnail_{new_name}.png"
+            cmd = f'ffmpeg -ss {random_time} -i "{file_path}" -vframes 1 "{ph_path}"'
+            process = await asyncio.create_subprocess_shell(cmd)
+            await process.communicate()  # Wait for the command to finish
             width, height, ph_path = await fix_thumb(ph_path)
-        else:
-            try:
-                # Generate a screenshot if no thumbnail exists
-                if duration > 0:
-                    random_time = random.randint(0, duration - 1)  # Get a random time within the video duration
-                    ph_path = f"downloads/thumbnail_{new_name}.png"
-                    cmd = f'ffmpeg -ss {random_time} -i "{file_path}" -vframes 1 "{ph_path}"'
-                    await asyncio.create_subprocess_shell(cmd)
-                    width, height, ph_path = await fix_thumb(ph_path)
-            except Exception as e:
-                ph_path = None
 
     # Initialize file to ensure it's defined in the retry loop
     filw = None
