@@ -420,41 +420,50 @@ async def generate_screenshots(client: Client, message, file_path: str, new_name
     screenshots_dir = "downloads/screenshots"
     os.makedirs(screenshots_dir, exist_ok=True)
 
+    # Initialize screenshot_paths to avoid access issues in the finally block
+    screenshot_paths = []
+
     try:
         # Notify user about the process
         status_message = await message.reply_text("⚙️ **Generating screenshots...**")
 
-        # Get video duration
+        # Get video duration using ffprobe
         cmd_duration = f'ffprobe -v error -select_streams v:0 -show_entries stream=duration -of default=noprint_wrappers=1:nokey=1 "{file_path}"'
         process_duration = await asyncio.create_subprocess_shell(cmd_duration, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
         stdout_duration, stderr_duration = await process_duration.communicate()
-        duration = float(stdout_duration.decode().strip())
 
-        screenshot_paths = []
+        # Use only the first line of ffprobe output for duration
+        duration_lines = stdout_duration.decode().strip().split("\n")
+        if not duration_lines[0]:
+            await message.reply_text("⚠️ Could not determine the video duration. Please send a valid video file.")
+            return
+
+        duration = float(duration_lines[0])  # Parse the first line as the video duration
+
+        # Generate screenshots at random times
         for i in range(count):
-            # Generate a random time for the screenshot
-            random_time = random.uniform(0, duration)
-
+            random_time = random.uniform(0, duration)  # Generate a random time within the video duration
             screenshot_path = f"{screenshots_dir}/screenshot_{new_name}_{i}.png"
+
             cmd = f'ffmpeg -ss {random_time} -i "{file_path}" -vframes 1 "{screenshot_path}"'
             process = await asyncio.create_subprocess_shell(cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
             await process.communicate()
+
             screenshot_paths.append(screenshot_path)
 
             # Update progress message
             await status_message.edit(f"📷 **GENERATING SCREENSHOTS {i + 1} | {count}**")
 
-        # Send media groups in batches of 10
+        # Send media groups in batches of 10 screenshots
         for start in range(0, len(screenshot_paths), 10):
             media_group = [InputMediaPhoto(media=screenshot_path) for screenshot_path in screenshot_paths[start:start + 10]]
 
             try:
-                # Send media group to user
                 await client.send_media_group(message.chat.id, media_group)
             except Exception as e:
                 if "MULTI_MEDIA_TOO_LONG" in str(e):
                     await message.reply_text("⚠️ Too many screenshots to send in one group. Sending the next batch...")
-                    continue  # Skip to the next batch
+                    continue
                 else:
                     await message.reply_text(f"⚠️ Failed to send media group.\n\n{e}")
 
@@ -465,15 +474,13 @@ async def generate_screenshots(client: Client, message, file_path: str, new_name
         # Notify user about the failure
         await message.reply_text(f"⚠️ Failed to generate or send screenshots.\n\n{e}")
 
-
     finally:
-        # Cleanup
+        # Cleanup screenshots and directory
         for screenshot_path in screenshot_paths:
             if os.path.exists(screenshot_path):
                 os.remove(screenshot_path)
-        if os.path.exists(screenshots_dir):
+        if os.path.exists(screenshots_dir) and not os.listdir(screenshots_dir):
             os.rmdir(screenshots_dir)
-
             
 @Client.on_message(filters.private & (filters.document | filters.video | filters.audio))
 async def auto_rename_files(client, message):
