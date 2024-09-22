@@ -345,10 +345,11 @@ async def process_file(client, message, media, new_name, media_type, user_id):
         pass
 
 async def generate_sample_video(client, message, file_path, new_name, user_id, db):
-    """Generate a sample video based on the user's preset2 duration from the database and send it to the user."""
+    """Generate a sample video with a thumbnail from any valid video format, or notify if the format is unsupported."""
     # Correct the file naming
     sample_name = f"SAMPLE_{new_name}"
-    sample_path = f"downloads/{sample_name}.mp4"
+    sample_path = f"downloads/{sample_name}.mp4"  # We'll always output in MP4 format
+    thumb_path = f"downloads/{new_name}_thumb.jpg"  # Thumbnail image path
 
     try:
         # Notify user about the process
@@ -362,6 +363,11 @@ async def generate_sample_video(client, message, file_path, new_name, user_id, d
         process_duration = await asyncio.create_subprocess_shell(cmd_duration, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
         stdout_duration, stderr_duration = await process_duration.communicate()
 
+        if stderr_duration:
+            # If there's an error with ffprobe, likely it's an unsupported video format
+            await status_message.edit("⚠️ Unsupported video format. Please send a valid video file (e.g., .mp4).")
+            return
+
         # Decode the output and handle multiple lines
         duration_lines = stdout_duration.decode().strip().split("\n")
         total_duration = float(duration_lines[0])  # Parse the first line as the video duration
@@ -373,16 +379,34 @@ async def generate_sample_video(client, message, file_path, new_name, user_id, d
         # Generate a random start time, ensuring the sample fits within the video
         random_start_time = random.uniform(0, total_duration - preset_duration)
 
-        # Generate the sample video at the random start time using the preset duration
-        cmd = f'ffmpeg -ss {random_start_time} -i "{file_path}" -t {preset_duration} -c copy "{sample_path}"'
-        process = await asyncio.create_subprocess_shell(cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
-        stdout, stderr = await process.communicate()
+        # Generate the sample video (output always as mp4) at the random start time using the preset duration
+        cmd_sample = f'ffmpeg -ss {random_start_time} -i "{file_path}" -t {preset_duration} -c copy "{sample_path}"'
+        process_sample = await asyncio.create_subprocess_shell(cmd_sample, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+        stdout_sample, stderr_sample = await process_sample.communicate()
 
-        # Send the sample video to the user
+        if stderr_sample:
+            # If there's an error generating the sample, notify the user
+            await status_message.edit(f"⚠️ Failed to generate sample video. Please send a valid video file.\n\nError: {stderr_sample.decode()}")
+            return
+
+        # Generate a random moment for the thumbnail (somewhere in the sample video)
+        thumb_time = random.uniform(random_start_time, random_start_time + preset_duration)
+
+        # Generate the thumbnail at the random time
+        cmd_thumb = f'ffmpeg -ss {thumb_time} -i "{file_path}" -vframes 1 "{thumb_path}"'
+        process_thumb = await asyncio.create_subprocess_shell(cmd_thumb, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+        stdout_thumb, stderr_thumb = await process_thumb.communicate()
+
+        # Check if the thumbnail was successfully generated
+        if not os.path.exists(thumb_path):
+            thumb_path = None  # No thumbnail was generated
+
+        # Send the sample video to the user with the thumb (if it exists)
         await client.send_video(
             message.chat.id,
             sample_path,
             caption=f"📹 Sample video for {new_name}",
+            thumb=thumb_path,  # Send thumbnail if available
             progress=progress_for_pyrogram,
             progress_args=("🚀 **Uploading Sample Video....**", message, time.time())
         )
@@ -398,6 +422,8 @@ async def generate_sample_video(client, message, file_path, new_name, user_id, d
         # Cleanup
         if os.path.exists(sample_path):
             os.remove(sample_path)
+        if thumb_path and os.path.exists(thumb_path):
+            os.remove(thumb_path)  # Remove thumb after sending
 
 
 async def generate_screenshots(client: Client, message, file_path: str, new_name: str, count: int):
