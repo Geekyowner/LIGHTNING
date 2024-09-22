@@ -399,6 +399,7 @@ async def generate_sample_video(client, message, file_path, new_name, user_id, d
         if os.path.exists(sample_path):
             os.remove(sample_path)
 
+
 async def generate_screenshots(client: Client, message, file_path: str, new_name: str, count: int):
     """Generate screenshots at random moments from the main video and send them to the user in media groups."""
     screenshots_dir = "downloads/screenshots"
@@ -458,6 +459,7 @@ async def generate_screenshots(client: Client, message, file_path: str, new_name
         if os.path.exists(screenshots_dir):
             os.rmdir(screenshots_dir)
 
+            
 @Client.on_message(filters.private & (filters.document | filters.video | filters.audio))
 async def auto_rename_files(client, message):
     user_id = message.from_user.id
