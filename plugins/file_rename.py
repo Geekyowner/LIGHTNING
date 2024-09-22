@@ -350,10 +350,16 @@ async def generate_sample_video(client, message, file_path, new_name, user_id, d
     """Generate a sample video with a thumbnail based on the user's preset2 duration from the database and send it to the user."""
     # Correct the file naming
     sample_name = f"SAMPLE_{new_name}"
-    sample_path = f"downloads/{sample_name}.mp4"
+    sample_path = f"downloads/{sample_name}.mp4"  # Always output the sample as .mp4
     thumb_path = f"downloads/{new_name}_thumb.jpg"  # Thumbnail image path
 
     try:
+        # Check if the file is a valid video format
+        mime_type, _ = mimetypes.guess_type(file_path)
+        if not mime_type or not mime_type.startswith("video"):
+            await message.reply_text("⚠️ Please send a valid video file.")
+            return
+
         # Notify user about the process
         status_message = await message.reply_text("⚙️ **Generating sample video...**")
 
@@ -367,6 +373,10 @@ async def generate_sample_video(client, message, file_path, new_name, user_id, d
 
         # Decode the output and handle multiple lines
         duration_lines = stdout_duration.decode().strip().split("\n")
+        if not duration_lines[0]:
+            await message.reply_text("⚠️ Could not determine the video duration. Please send a valid video file.")
+            return
+
         total_duration = float(duration_lines[0])  # Parse the first line as the video duration
 
         # Ensure the sample video is shorter than the total video duration
@@ -376,7 +386,7 @@ async def generate_sample_video(client, message, file_path, new_name, user_id, d
         # Generate a random start time, ensuring the sample fits within the video
         random_start_time = random.uniform(0, total_duration - preset_duration)
 
-        # Generate the sample video at the random start time using the preset duration
+        # Generate the sample video at the random start time using the preset duration (output as .mp4)
         cmd_sample = f'ffmpeg -ss {random_start_time} -i "{file_path}" -t {preset_duration} -c copy "{sample_path}"'
         process_sample = await asyncio.create_subprocess_shell(cmd_sample, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
         stdout_sample, stderr_sample = await process_sample.communicate()
