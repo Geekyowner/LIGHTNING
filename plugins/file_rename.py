@@ -347,8 +347,8 @@ async def process_file(client, message, media, new_name, media_type, user_id):
 async def generate_sample_video(client, message, file_path, new_name, user_id, db):
     """Generate a sample video with a thumbnail from any valid video format, or notify if the format is unsupported."""
     # Correct the file naming
-    sample_name = f"SAMPLE_{new_name}"
-    sample_path = f"downloads/{sample_name}.mp4"  # We'll always output in MP4 format
+    sample_name = f"SAMPLE_{new_name}.mp4"  # Always output in .mp4 format
+    sample_path = f"downloads/{sample_name}"  # Ensuring correct file extension
     thumb_path = f"downloads/{new_name}_thumb.jpg"  # Thumbnail image path
 
     try:
@@ -363,7 +363,7 @@ async def generate_sample_video(client, message, file_path, new_name, user_id, d
         process_duration = await asyncio.create_subprocess_shell(cmd_duration, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
         stdout_duration, stderr_duration = await process_duration.communicate()
 
-        if stderr_duration:
+        if process_duration.returncode != 0 or stderr_duration:
             # If there's an error with ffprobe, likely it's an unsupported video format
             await status_message.edit("⚠️ Unsupported video format. Please send a valid video file (e.g., .mp4).")
             return
@@ -384,7 +384,7 @@ async def generate_sample_video(client, message, file_path, new_name, user_id, d
         process_sample = await asyncio.create_subprocess_shell(cmd_sample, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
         stdout_sample, stderr_sample = await process_sample.communicate()
 
-        if stderr_sample:
+        if process_sample.returncode != 0 or stderr_sample:
             # If there's an error generating the sample, notify the user
             await status_message.edit(f"⚠️ Failed to generate sample video. Please send a valid video file.\n\nError: {stderr_sample.decode()}")
             return
@@ -424,7 +424,6 @@ async def generate_sample_video(client, message, file_path, new_name, user_id, d
             os.remove(sample_path)
         if thumb_path and os.path.exists(thumb_path):
             os.remove(thumb_path)  # Remove thumb after sending
-
 
 async def generate_screenshots(client: Client, message, file_path: str, new_name: str, count: int):
     """Generate screenshots at random moments from the main video and send them to the user in media groups."""
