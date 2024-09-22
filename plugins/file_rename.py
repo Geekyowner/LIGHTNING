@@ -192,7 +192,7 @@ async def refunc(client, message):
 
 async def process_file(client, message, media, new_name, media_type, user_id):
     """Process the file after getting the new name and media type."""
-    
+
     # Initialize variables
     file_path = f"downloads/{new_name}"
     metadata_path = None
@@ -217,7 +217,6 @@ async def process_file(client, message, media, new_name, media_type, user_id):
     if sample_video_response == "✅":
         preset_duration = await db.get_preset2(message.from_user.id)  # Fetch sample video duration
         await generate_sample_video(client, message, file_path, new_name, user_id, db)
-
 
     # Check if metadata should be added
     _bool_metadata = await db.get_metadata(message.chat.id)
@@ -260,16 +259,21 @@ async def process_file(client, message, media, new_name, media_type, user_id):
     else:
         caption = f"**{new_name}**"
 
-    if media.thumbs or c_thumb:
-        if c_thumb:
-            ph_path = await client.download_media(c_thumb)
-            width, height, ph_path = await fix_thumb(ph_path)
-        else:
-            try:
-                ph_path_ = await take_screen_shot(file_path, os.path.dirname(os.path.abspath(file_path)), random.randint(0, duration - 1))
+    # Handle thumbnail generation
+    if c_thumb:
+        ph_path = await client.download_media(c_thumb)
+        width, height, ph_path = await fix_thumb(ph_path)
+    else:
+        # If no thumbnail is provided, generate a screenshot
+        try:
+            if duration > 0:  # Ensure duration is valid
+                screenshot_time = random.randint(0, duration - 1)  # Random time for screenshot
+                ph_path_ = await take_screen_shot(file_path, os.path.dirname(os.path.abspath(file_path)), screenshot_time)
                 width, height, ph_path = await fix_thumb(ph_path_)
-            except Exception as e:
+            else:
                 ph_path = None
+        except Exception as e:
+            ph_path = None  # If screenshot generation fails, keep ph_path as None
 
     # Initialize file to ensure it's defined in the retry loop
     filw = None
