@@ -345,10 +345,10 @@ async def process_file(client, message, media, new_name, media_type, user_id):
         pass
 
 async def generate_sample_video(client, message, file_path, new_name, user_id, db):
-    """Generate a sample video with a thumbnail from any valid video format, or notify if the format is unsupported."""
+    """Generate a sample video with a thumbnail based on the user's preset2 duration from the database and send it to the user."""
     # Correct the file naming
-    sample_name = f"SAMPLE_{new_name}.mp4"  # Always output in .mp4 format
-    sample_path = f"downloads/{sample_name}"  # Ensuring correct file extension
+    sample_name = f"SAMPLE_{new_name}"
+    sample_path = f"downloads/{sample_name}.mp4"
     thumb_path = f"downloads/{new_name}_thumb.jpg"  # Thumbnail image path
 
     try:
@@ -363,11 +363,6 @@ async def generate_sample_video(client, message, file_path, new_name, user_id, d
         process_duration = await asyncio.create_subprocess_shell(cmd_duration, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
         stdout_duration, stderr_duration = await process_duration.communicate()
 
-        if process_duration.returncode != 0 or stderr_duration:
-            # If there's an error with ffprobe, likely it's an unsupported video format
-            await status_message.edit("⚠️ Unsupported video format. Please send a valid video file (e.g., .mp4).")
-            return
-
         # Decode the output and handle multiple lines
         duration_lines = stdout_duration.decode().strip().split("\n")
         total_duration = float(duration_lines[0])  # Parse the first line as the video duration
@@ -379,15 +374,10 @@ async def generate_sample_video(client, message, file_path, new_name, user_id, d
         # Generate a random start time, ensuring the sample fits within the video
         random_start_time = random.uniform(0, total_duration - preset_duration)
 
-        # Generate the sample video (output always as mp4) at the random start time using the preset duration
+        # Generate the sample video at the random start time using the preset duration
         cmd_sample = f'ffmpeg -ss {random_start_time} -i "{file_path}" -t {preset_duration} -c copy "{sample_path}"'
         process_sample = await asyncio.create_subprocess_shell(cmd_sample, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
         stdout_sample, stderr_sample = await process_sample.communicate()
-
-        if process_sample.returncode != 0 or stderr_sample:
-            # If there's an error generating the sample, notify the user
-            await status_message.edit(f"⚠️ Failed to generate sample video. Please send a valid video file.\n\nError: {stderr_sample.decode()}")
-            return
 
         # Generate a random moment for the thumbnail (somewhere in the sample video)
         thumb_time = random.uniform(random_start_time, random_start_time + preset_duration)
