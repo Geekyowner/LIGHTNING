@@ -272,6 +272,8 @@ async def process_file(client, message, media, new_name, media_type, user_id):
             cmd = f'ffmpeg -ss {random_time} -i "{file_path}" -vframes 1 "{ph_path}"'
             process = await asyncio.create_subprocess_shell(cmd)
             await process.communicate()  # Wait for the command to finish
+            print(f"Generated thumbnail at {ph_path} using time {random_time}s.")  # Log in console
+            await message.reply_text("📸 **Using a random thumbnail generated from the video!**")
             width, height, ph_path = await fix_thumb(ph_path)
 
     # Initialize file to ensure it's defined in the retry loop
