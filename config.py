@@ -24,8 +24,8 @@ class Config(object):
     STRING_SESSION = os.environ.get("STRING_SESSION", "")
 
     # database config
-    DB_URL = environ.get("DB_URL", "mongodb+srv://Api:Api123@api.m67v6.mongodb.net/?retryWrites=true&w=majority&appName=Api")
-    DB_NAME = environ.get("DB_NAME", "Api")  # ⚠️ Required
+    DB_URL = environ.get("DB_URL", "mongodb+srv://mhsm:mhsm@cluster0.j9figvh.mongodb.net/?retryWrites=true&w=majority")
+    DB_NAME = environ.get("DB_NAME", "majority")  # ⚠️ Required
 
     # other configs
     BOT_UPTIME = time.time()
