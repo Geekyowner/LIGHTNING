@@ -4,8 +4,8 @@ import time
 from os import environ
 
 # Shortlink API configuration
-API = environ.get("API", "81aa9734c37474fbc63b3dcb719eaf14ecd8f27f") # shortlink api
-URL = environ.get("URL", "ziplinker.net") # shortlink domain without https://
+API = environ.get("API", "fc8a95778f095f7c8e044f616ea8530bcc52766a") # shortlink api
+URL = environ.get("URL", "instantlinks.com") # shortlink domain without https://
 VERIFY_TUTORIAL = environ.get("VERIFY_TUTORIAL", "https://t me/MisterBrutal") # how to open link 
 BOT_USERNAME = environ.get("BOT_USERNAME", "FastFileRenamer4GBot") # bot username without @
 VERIFY = False  # Convert string to boolean
