@@ -24,7 +24,6 @@ app = Client("combined", api_id=Config.STRING_API_ID,
 
 db = Database(Config.DB_URL, Config.DB_NAME)
 
-
 # New methods to set and get media type
 async def set_media_type(user_id, media_type):
     """Set the media type preference for a user."""
