@@ -21,7 +21,7 @@ class Config(object):
     # premium 4g renaming client
     STRING_API_ID = os.environ.get("STRING_API_ID", "24817837")
     STRING_API_HASH = os.environ.get("STRING_API_HASH", "acd9f0cc6beb08ce59383cf250052686")
-    STRING_SESSION = os.environ.get("STRING_SESSION", "")
+    STRING_SESSION = os.environ.get("STRING_SESSION", "BAF6sK0Arp_9PTMiKxw_DovZI54ZQSJ96sB_xIu8lmq9bLmVlfFAZxEv0ZQlh3kRTLfom2DYnhi2R5s3SSvnLkl8Rvbrl4rRseleISZZ5WBOllh6haIoYmvE19QY0MhTQoCIrQswV8AyG8Lm0CC_wtDW41HgqU_PqqmFp6n0wB5010WuM-waplijOhQyUOH9Yp073fv32KtVNY3Qjh35smBQ6URMtBCJzeNTDEk2IyxHG92osvLZC_ReO3DxGbfPruEHdFhC6ay55VFcTHYLCCI3zNXuTA8QHv659e5zwjGyKKGHk1sVOpuw6qPGPzqvQKU6U6-GPxetj9SkLy1b9Zutl9WHZgAAAAG6xrWUAA")
 
     # database config
     DB_URL = environ.get("DB_URL", "mongodb+srv://mhsm:mhsm@cluster0.j9figvh.mongodb.net/?retryWrites=true&w=majority")
