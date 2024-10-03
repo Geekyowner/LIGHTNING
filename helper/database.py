@@ -1,7 +1,7 @@
 import datetime
 import motor.motor_asyncio
 from config import Config
-
+from .utils import send_log
 from typing import List, Dict, Any
 
 class Database:
@@ -10,6 +10,13 @@ class Database:
         self.db = self.client[database_name]
         self.col = self.db['users']  # Reference to the specific collection
 
+    async def add_user(self, b, m):
+        u = m.from_user
+        if not await self.is_user_exist(u.id):
+            user = self.new_user(u.id)
+            await self.col.insert_one(user)            
+            await send_log(b, u)
+            
     # In your database handling class
     async def update_user_subscription(self, user_id: int, plan: str, validity_end: datetime):
         result = await self.col.update_one(
@@ -136,12 +143,6 @@ class Database:
             metadata_code=""" -map 0 -c:s copy -c:a copy -c:v copy -metadata title="Powered By:- @Kdramaland" -metadata author="@Snowball_Official" -metadata:s:s title="Subtitled By :- @Kdramaland" -metadata:s:a title="By :- @Kdramaland" -metadata:s:v title="By:- @Snowball_Official" """
         )
 
-    async def add_user(self, b, m, send_log):
-        u = m.from_user
-        if not await self.is_user_exist(u.id):
-            user = self.new_user(u.id)
-            await self.col.insert_one(user)
-            await send_log(b, u)
 
     async def is_user_exist(self, id):
         user = await self.col.find_one({'_id': int(id)})
