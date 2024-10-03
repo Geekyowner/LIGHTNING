@@ -25,7 +25,7 @@ class Config(object):
 
     # database config
     DB_URL = environ.get("DB_URL", "mongodb+srv://mhsm:mhsm@cluster0.j9figvh.mongodb.net/?retryWrites=true&w=majority")
-    DB_NAME = environ.get("DB_NAME", "majority")  # ⚠️ Required
+    DB_NAME = environ.get("DB_NAME", "my")  # ⚠️ Required
 
     # other configs
     BOT_UPTIME = time.time()
