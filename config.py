@@ -4,10 +4,10 @@ import time
 from os import environ
 
 # Shortlink API configuration
-API = environ.get("API", "fc8a95778f095f7c8e044f616ea8530bcc52766a") # shortlink api
-URL = environ.get("URL", "instantlinks.com") # shortlink domain without https://
+API = environ.get("API", "10e3de75d9870e644b18d2ad693deca36aae9556") # shortlink api
+URL = environ.get("URL", "modijiurl.com") # shortlink domain without https://
 VERIFY_TUTORIAL = environ.get("VERIFY_TUTORIAL", "https://t me/MisterBrutal") # how to open link 
-BOT_USERNAME = environ.get("BOT_USERNAME", "FastFileRenamer4GBot") # bot username without @
+BOT_USERNAME = environ.get("BOT_USERNAME", "File_Renamer_4GBX_RoBot") # bot username without @
 VERIFY = False  # Convert string to boolean
 
 id_pattern = re.compile(r'^.\d+$')
