@@ -1,7 +1,7 @@
 import logging
 import logging.config
 import warnings
-import os
+from pyrogram import Client, idle
 from pyrogram import Client, __version__
 from pyrogram.raw.all import layer
 from config import Config
@@ -11,10 +11,12 @@ from datetime import datetime
 import asyncio
 from plugins.web_support import web_server
 from plugins.file_rename import app
+import pyromod
 
 logging.config.fileConfig('logging.conf')
 logging.getLogger().setLevel(logging.INFO)
 logging.getLogger("pyrogram").setLevel(logging.ERROR)
+
 
 class Bot(Client):
 
@@ -35,7 +37,6 @@ class Bot(Client):
         self.mention = me.mention
         self.username = me.username
         self.force_channel = Config.FORCE_SUB
-        
         if Config.FORCE_SUB:
             try:
                 link = await self.export_chat_invite_link(Config.FORCE_SUB)
@@ -44,20 +45,11 @@ class Bot(Client):
                 logging.warning(e)
                 logging.warning("Make Sure Bot admin in force sub channel")
                 self.force_channel = None
-        
         app = web.AppRunner(await web_server())
         await app.setup()
         bind_address = "0.0.0.0"
         await web.TCPSite(app, bind_address, Config.PORT).start()
         logging.info(f"{me.first_name} ✅✅ BOT started successfully ✅✅")
-
-        # Checking premium status of the session string
-        session_string = Config.STRING_SESSION  # Use the session string from config
-        if session_string:
-            is_premium = await self.check_if_premium(session_string)
-            logging.info(f"Session premium status: {is_premium}")
-        else:
-            logging.info("No session string provided.")
 
         for id in Config.ADMIN:
             try:
@@ -72,30 +64,7 @@ class Bot(Client):
                 time = curr.strftime('%I:%M:%S %p')
                 await self.send_message(Config.LOG_CHANNEL, f"**__{me.mention} Iꜱ Rᴇsᴛᴀʀᴛᴇᴅ !!**\n\n📅 Dᴀᴛᴇ : `{date}`\n⏰ Tɪᴍᴇ : `{time}`\n🌐 Tɪᴍᴇᴢᴏɴᴇ : `Asia/Kolkata`\n\n🉐 Vᴇʀsɪᴏɴ : `v{__version__} (Layer {layer})`</b>")
             except:
-                print("Pʟᴇᴀꜱᴇ Mᴀᴋᴇ Tʜɪꜱ Iɴ Aᴅᴍɪɴ Iɴ Yᴏᴜʀ Lᴏɢ Cʜᴀɴɴᴇʟ")
-
-    async def check_if_premium(self, session_string):
-        """
-        Check if the session string belongs to a premium account.
-        """
-        try:
-            # Initialize a temporary client with the session string
-            temp_client = Client("premium_check", session_string=session_string)
-            await temp_client.start()
-            
-            # Get the user's own information
-            user = await temp_client.get_me()
-
-            # Check if the user is premium
-            is_premium = user.is_premium  # This attribute tells if the user has premium status
-
-            # Stop the temporary client
-            await temp_client.stop()
-
-            return is_premium
-        except Exception as e:
-            logging.error(f"Error checking premium status for session: {e}")
-            return False
+                print("Pʟᴇᴀꜱᴇ Mᴀᴋᴇ Tʜɪꜱ Iꜱ Aᴅᴍɪɴ Iɴ Yᴏᴜʀ Lᴏɢ Cʜᴀɴɴᴇʟ")
 
     async def stop(self, *args):
         await super().stop()
@@ -122,3 +91,4 @@ def main():
 if __name__ == "__main__":
     warnings.filterwarnings("ignore", message="There is no current event loop")
     main()
+
