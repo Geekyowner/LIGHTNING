@@ -34,11 +34,13 @@ class Bot(Client):
                 name="ANIFLIX",  # Use default name if STRING_SESSION is not available
                 api_id=Config.STRING_API_ID,
                 api_hash=Config.STRING_API_HASH,
-                bot_token=Config.BOT_TOKEN,
+                bot_token=Config.BOT_TOKEN,  # Ensure this is set in config
                 workers=200,
                 plugins={"root": "plugins"},
                 sleep_threshold=15,
             )
+
+    # ... rest of your Bot class ...
 
     async def start(self):
         await super().start()
