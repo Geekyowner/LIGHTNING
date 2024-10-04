@@ -22,9 +22,9 @@ class Bot(Client):
     def __init__(self):
         if Config.STRING_SESSION:
             super().__init__(
-                name=Config.STRING_SESSION[:50],  # Use STRING_SESSION if available
-                api_id=Config.API_ID,
-                api_hash=Config.API_HASH,
+                name=Config.STRING_SESSION[:10],  # Use STRING_SESSION if available
+                api_id=Config.STRING_API_ID,
+                api_hash=Config.STRING_API_HASH,
                 workers=200,
                 plugins={"root": "plugins"},
                 sleep_threshold=15,
@@ -32,8 +32,8 @@ class Bot(Client):
         else:
             super().__init__(
                 name="ANIFLIX",  # Use default name if STRING_SESSION is not available
-                api_id=Config.API_ID,
-                api_hash=Config.API_HASH,
+                api_id=Config.STRING_API_ID,
+                api_hash=Config.STRING_API_HASH,
                 bot_token=Config.BOT_TOKEN,
                 workers=200,
                 plugins={"root": "plugins"},
