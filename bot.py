@@ -23,8 +23,8 @@ class Bot(Client):
     def __init__(self):
         super().__init__(
             name="ANIFLIX",
-            api_id=Config.STRING.API_ID,
-            api_hash=Config.STRING.API_HASH,
+            api_id=Config.STRING_API_ID,
+            api_hash=Config.STRING_API_HASH,
             bot_token=Config.BOT_TOKEN,
             workers=200,
             plugins={"root": "plugins"},
