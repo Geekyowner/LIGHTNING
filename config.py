@@ -21,11 +21,11 @@ class Config(object):
     # premium 4g renaming client
     STRING_API_ID = os.environ.get("STRING_API_ID", "24817837")
     STRING_API_HASH = os.environ.get("STRING_API_HASH", "acd9f0cc6beb08ce59383cf250052686")
-    STRING_SESSION = os.environ.get("STRING_SESSION", "")
+    STRING_SESSION = os.environ.get("STRING_SESSION", "BAF6sK0AGQHTnDvdrntYt3dzZ_7xEAxZxoWpNVN1MAxw9jic1saZG0fsSbXEqCISSv915vcQRBLLbc6PFauZr0HQ_dcgsd-0hulBkCdnI5vsmViIFeeAHao1KXKt2pi0_nS_3k4UE0sF1jlXq_EaY7nvT0JtWUoRkJ3vGjh8Te5XbvmFfQNneyZ5n64KRWoG7MJbmanNVL7bQWslO_E5m-c4ICGlVd8tBY4enXFhG2A4zprXz9S0ewiiLdt_qPhOqH1Ktoe5pLIhehEZ91IoxuDM1UviA5Cmln1Uor1ozhCzxYsgrGKlY5ql6Ax8uAriszPR49DZaRFdiJzeEFIugjZL18nLogAAAAG6xrWUAA")
 
     # database config
     DB_URL = environ.get("DB_URL", "mongodb+srv://mhsm:mhsm@cluster0.j9figvh.mongodb.net/?retryWrites=true&w=majority")
-    DB_NAME = environ.get("DB_NAME", "my")  # ⚠️ Required
+    DB_NAME = environ.get("DB_NAME", "mly")  # ⚠️ Required
 
     # other configs
     BOT_UPTIME = time.time()
