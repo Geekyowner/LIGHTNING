@@ -1,4 +1,3 @@
-import os
 import logging
 import logging.config
 import warnings
@@ -20,28 +19,17 @@ logging.getLogger("pyrogram").setLevel(logging.ERROR)
 
 
 class Bot(Client):
-    def __init__(self):
-        if Config.STRING_SESSION:
-            super().__init__(
-                name=Config.STRING_SESSION[:10],  # Use STRING_SESSION if available
-                api_id=Config.STRING_API_ID,
-                api_hash=Config.STRING_API_HASH,
-                workers=200,
-                plugins={"root": "plugins"},
-                sleep_threshold=15,
-            )
-        else:
-            super().__init__(
-                name="ANIFLIX",  # Use default name if STRING_SESSION is not available
-                api_id=Config.STRING_API_ID,
-                api_hash=Config.STRING_API_HASH,
-                bot_token=Config.BOT_TOKEN,  # Ensure this is set in config
-                workers=200,
-                plugins={"root": "plugins"},
-                sleep_threshold=15,
-            )
 
-    # ... rest of your Bot class ...
+    def __init__(self):
+        super().__init__(
+            name="ANIFLIX",
+            api_id=Config.STRING.API_ID,
+            api_hash=Config.STRING.API_HASH,
+            bot_token=Config.BOT_TOKEN,
+            workers=200,
+            plugins={"root": "plugins"},
+            sleep_threshold=15,
+        )
 
     async def start(self):
         await super().start()
@@ -49,7 +37,6 @@ class Bot(Client):
         self.mention = me.mention
         self.username = me.username
         self.force_channel = Config.FORCE_SUB
-        
         if Config.FORCE_SUB:
             try:
                 link = await self.export_chat_invite_link(Config.FORCE_SUB)
@@ -58,7 +45,6 @@ class Bot(Client):
                 logging.warning(e)
                 logging.warning("Make Sure Bot admin in force sub channel")
                 self.force_channel = None
-        
         app = web.AppRunner(await web_server())
         await app.setup()
         bind_address = "0.0.0.0"
@@ -76,14 +62,7 @@ class Bot(Client):
                 curr = datetime.now(timezone("Asia/Kolkata"))
                 date = curr.strftime('%d %B, %Y')
                 time = curr.strftime('%I:%M:%S %p')
-                await self.send_message(
-                    Config.LOG_CHANNEL, 
-                    f"**__{me.mention} Iꜱ Rᴇsᴛᴀʀᴛᴇᴅ !!**\n\n"
-                    f"📅 Dᴀᴛᴇ : `{date}`\n"
-                    f"⏰ Tɪᴍᴇ : `{time}`\n"
-                    f"🌐 Tɪᴍᴇᴢᴏɴᴇ : `Asia/Kolkata`\n\n"
-                    f"🉐 Vᴇʀsɪᴏɴ : `v{__version__} (Layer {layer})`"
-                )
+                await self.send_message(Config.LOG_CHANNEL, f"**__{me.mention} Iꜱ Rᴇsᴛᴀʀᴛᴇᴅ !!**\n\n📅 Dᴀᴛᴇ : `{date}`\n⏰ Tɪᴍᴇ : `{time}`\n🌐 Tɪᴍᴇᴢᴏɴᴇ : `Asia/Kolkata`\n\n🉐 Vᴇʀsɪᴏɴ : `v{__version__} (Layer {layer})`</b>")
             except:
                 print("Pʟᴇᴀꜱᴇ Mᴀᴋᴇ Tʜɪꜱ Iꜱ Aᴅᴍɪɴ Iɴ Yᴏᴜʀ Lᴏɢ Cʜᴀɴɴᴇʟ")
 
@@ -91,9 +70,7 @@ class Bot(Client):
         await super().stop()
         logging.info("Bot Stopped 🙄")
 
-
 bot_instance = Bot()
-
 
 def main():
     async def start_services():
@@ -114,3 +91,4 @@ def main():
 if __name__ == "__main__":
     warnings.filterwarnings("ignore", message="There is no current event loop")
     main()
+
