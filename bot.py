@@ -28,6 +28,7 @@ logging.getLogger("pyrogram").setLevel(logging.ERROR)
 class Bot(Client):
 
     def __init__(self):
+        # Using the provided session name format
         session_name = "string.session" if Config.STRING_SESSION else "ANIFLIX.session"
         super().__init__(
             name=session_name,
@@ -45,6 +46,11 @@ class Bot(Client):
         self.mention = me.mention
         self.username = me.username
         self.force_channel = Config.FORCE_SUB
+
+        # Check and log if the bot is using a string session or regular API credentials
+        session_type = "String Session" if Config.STRING_SESSION else "API ID and API Hash"
+        logging.info(f"Bot is using a {session_type} for authentication.")
+
         if Config.FORCE_SUB:
             try:
                 link = await self.export_chat_invite_link(Config.FORCE_SUB)
@@ -53,10 +59,13 @@ class Bot(Client):
                 logging.warning(e)
                 logging.warning("Make sure the bot is an admin in the force sub channel")
                 self.force_channel = None
+        
+        # Start the web server
         app_runner = web.AppRunner(await web_server())
         await app_runner.setup()
         bind_address = "0.0.0.0"
         await web.TCPSite(app_runner, bind_address, Config.PORT).start()
+        
         logging.info(f"{me.first_name} ✅✅ BOT started successfully ✅✅")
 
         for id in Config.ADMIN:
@@ -65,6 +74,7 @@ class Bot(Client):
             except:
                 pass
 
+        # Send log message to the log channel with session information
         if Config.LOG_CHANNEL:
             try:
                 curr = datetime.now(timezone("Asia/Kolkata"))
@@ -72,7 +82,7 @@ class Bot(Client):
                 time = curr.strftime('%I:%M:%S %p')
                 await self.send_message(
                     Config.LOG_CHANNEL,
-                    f"**__{me.mention} Iꜱ Rᴇsᴛᴀʀᴛᴇᴅ !!**\n\n📅 Dᴀᴛᴇ : `{date}`\n⏰ Tɪᴍᴇ : `{time}`\n🌐 Tɪᴍᴇᴢᴏɴᴇ : `Asia/Kolkata`\n\n🉐 Vᴇʀsɪᴏɴ : `v{__version__} (Layer {layer})`"
+                    f"**__{me.mention} Iꜱ Rᴇsᴛᴀʀᴛᴇᴅ !!**\n\n📅 Dᴀᴛᴇ : `{date}`\n⏰ Tɪᴍᴇ : `{time}`\n🌐 Tɪᴍᴇᴢᴏɴᴇ : `Asia/Kolkata`\n\n🉐 Vᴇʀsɪᴏɴ : `v{__version__} (Layer {layer})`\n🔐 Sᴇssɪᴏɴ Tʏᴘᴇ : `{session_type}`"
                 )
             except:
                 logging.error("Pʟᴇᴀꜱᴇ Mᴀᴋᴇ Tʜɪꜱ Iꜱ Aᴅᴍɪɴ Iɴ Yᴏᴜʀ Lᴏɢ Cʜᴀɴɴᴇʟ", exc_info=True)
