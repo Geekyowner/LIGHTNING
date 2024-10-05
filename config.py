@@ -33,8 +33,8 @@ class Config(object):
     ADMIN = [int(admin) if id_pattern.search(
         admin) else admin for admin in os.environ.get('ADMIN', '1740287480 5192808332').split()]  # ⚠️ Required
     
-    FORCE_SUB = os.environ.get("FORCE_SUB", "MisterBrutal") # ⚠️ Required Username without @
-    LOG_CHANNEL = int(os.environ.get("LOG_CHANNEL", "-1002115299028"))  # ⚠️ Required
+    FORCE_SUB = os.environ.get("FORCE_SUB", "Aniflix_Network") # ⚠️ Required Username without @
+    LOG_CHANNEL = int(os.environ.get("LOG_CHANNEL", "-1002151954601"))  # ⚠️ Required
     FLOOD = int(os.environ.get("FLOOD", '105'))
     BANNED_USERS = set(int(x) for x in os.environ.get(
         "BANNED_USERS", "1234567890").split())
