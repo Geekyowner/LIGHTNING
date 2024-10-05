@@ -28,7 +28,7 @@ logging.getLogger("pyrogram").setLevel(logging.ERROR)
 class Bot(Client):
 
     def __init__(self):
-        session_name = Config.STRING_SESSION if Config.STRING_SESSION else "ANIFLIX"
+        session_name = "string.session" if Config.STRING_SESSION else "ANIFLIX.session"
         super().__init__(
             name=session_name,
             api_id=Config.STRING_API_ID,
